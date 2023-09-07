@@ -12,54 +12,57 @@ from sklearn.metrics import (
     classification_report,
 )
 import matplotlib.pyplot as plt
+from data_preparation import *
+from agent import *
+
+path = "~/bin/SpamDataset2/emails.csv"
+ds = pull_DataFrame_csv(path)
+columns = ['Email No.']
+separetor = "####################################\n"
+ds = data_cleaning(ds, columns)
+
+print(f"\n\nDataSet Info:\n{separetor}")
+info(ds)
+print(separetor)
+
+indipendent_variables = data_cleaning(ds, ['Prediction'])
+dipendent_variables = get_column(ds, 'Prediction')
 
 
-ds = pd.read_csv("~/bin/SpamDataset2/emails.csv")
+ham_counter, spam_counter = coun_spam_ham(dipendent_variables) 
+print(separetor)
+print(f"All entrys -> Ham emails: {ham_counter}, Spam emails: {spam_counter}\n")
+print(separetor)
 
-ds = ds.drop(columns=['Email No.'])
+print("Splitting DataSet...\n")
+indipendent_variables_training_set, indipendent_variables_testing_set, dipendent_variables_training_set, dipendent_variables_test_set = split_set(indipendent_variables, dipendent_variables, test_size=0.33, random_state=random.randint(0, 256))
 
-ds.info()
+print(separetor)
+ham_counter, spam_counter = coun_spam_ham(dipendent_variables_test_set)
+print(f"Test entrys -> Ham emails: {ham_counter}, Spam emails: {spam_counter}\n")
+print(separetor)
 
-indipendent_variables = ds.drop('Prediction', axis=1)
-dipendent_variable = ds['Prediction'] 
+agent = Agent()
+print("Agent training...")
+agent.fit(indipendent_variables_training_set, dipendent_variables_training_set)
 
-spam_counter = 0
-ham_counter = 0
-for x in dipendent_variable:
-    if x == 0:
-        ham_counter = ham_counter + 1
-    elif x == 1:
-        spam_counter = spam_counter + 1 
+print(separetor)
+print("Agent predicting...")
+dipendent_variables_prediction = agent.predict(indipendent_variables_testing_set) 
+print(separetor)
 
-print(f"All entrys -> Ham emails: {ham_counter}, Spam emails: {spam_counter}")
+print("Agent evaluating...")
 
-X_train, X_test, y_train, y_test = train_test_split(indipendent_variables, dipendent_variable, test_size=0.33, random_state=random.randint(0, 256))
-
-spam_counter = 0
-ham_counter = 0
-for x in y_test:
-    if x == 0:
-        ham_counter = ham_counter + 1
-    elif x == 1:
-        spam_counter = spam_counter + 1 
-
-print(f"Test entrys -> Ham emails: {ham_counter}, Spam emails: {spam_counter}")
-
-model = GaussianNB()
-
-model.fit(X_train, y_train)
-
-y_pred = model.predict(X_test)
-
-accurancy = accuracy_score(y_test, y_pred)
+accurancy = accuracy_score(dipendent_variables_test_set, dipendent_variables_prediction)
 print(f"Accurancy: {accurancy}")
-precision = precision_score(y_test, y_pred)
+precision = precision_score(dipendent_variables_test_set, dipendent_variables_prediction)
 print(f"Precision: {precision}")
-recall = recall_score(y_test, y_pred)
+recall = recall_score(dipendent_variables_test_set, dipendent_variables_prediction)
 print(f"Recall: {recall}")
+print(separetor)
 
 lables = [0, 1]
-cm = confusion_matrix(y_test, y_pred, labels=lables)
+cm = confusion_matrix(dipendent_variables_test_set, dipendent_variables_prediction, labels=lables)
 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=lables)
 disp.plot()
 plt.show()
