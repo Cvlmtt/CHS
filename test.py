@@ -1,41 +1,65 @@
+import random
 import pandas as pd
-import DBTool as dbc
+from sklearn.model_selection import train_test_split 
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import (
+    precision_score,
+    recall_score,
+    accuracy_score,
+    confusion_matrix,
+    ConfusionMatrixDisplay,
+    f1_score,
+    classification_report,
+)
+import matplotlib.pyplot as plt
 
 
 ds = pd.read_csv("~/bin/SpamDataset2/emails.csv")
-columns = list()
 
-print("Rows read: {}".format(len(ds.index)))
-print("Columns read: {}".format(len(ds.columns)))
-
-print("Dropping id column...")
 ds = ds.drop(columns=['Email No.'])
 
-print("Creating list with the lables...")
-for col in ds.columns:
-    columns.append(col)
+ds.info()
 
+indipendent_variables = ds.drop('Prediction', axis=1)
+dipendent_variable = ds['Prediction'] 
 
-print('\n\n-----------------------\n\n')
+spam_counter = 0
+ham_counter = 0
+for x in dipendent_variable:
+    if x == 0:
+        ham_counter = ham_counter + 1
+    elif x == 1:
+        spam_counter = spam_counter + 1 
 
-print("Actual rows {}".format(len(ds.index)))
-print("Actual columns {}".format(len(ds.columns)))
+print(f"All entrys -> Ham emails: {ham_counter}, Spam emails: {spam_counter}")
 
-connection = dbc.create_db_connection("localhost", "root", "Jgk#nfXGt#LTRcN3vRju", "spamDataFrame")
+X_train, X_test, y_train, y_test = train_test_split(indipendent_variables, dipendent_variable, test_size=0.33, random_state=random.randint(0, 256))
 
-checkTable = "drop table if exist dataset"
-dbc.execute_query(connection, checkTable)
+spam_counter = 0
+ham_counter = 0
+for x in y_test:
+    if x == 0:
+        ham_counter = ham_counter + 1
+    elif x == 1:
+        spam_counter = spam_counter + 1 
 
-createTableQuery = "create table dataset(\n"
-for col in columns:
-    createTableQuery = createTableQuery+col+"_KW varchar(255),\n"
+print(f"Test entrys -> Ham emails: {ham_counter}, Spam emails: {spam_counter}")
 
+model = GaussianNB()
 
-createTableQuery = createTableQuery[:-2]+");"
-print(createTableQuery)
-"""f = open("query.txt", "w")
-f.write(createTableQuery)
-f.close"""
+model.fit(X_train, y_train)
 
+y_pred = model.predict(X_test)
 
-dbc.execute_query(connection, createTableQuery)
+accurancy = accuracy_score(y_test, y_pred)
+print(f"Accurancy: {accurancy}")
+precision = precision_score(y_test, y_pred)
+print(f"Precision: {precision}")
+recall = recall_score(y_test, y_pred)
+print(f"Recall: {recall}")
+
+lables = [0, 1]
+cm = confusion_matrix(y_test, y_pred, labels=lables)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=lables)
+disp.plot()
+plt.show()
