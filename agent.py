@@ -5,8 +5,8 @@ from sklearn.metrics import (
     accuracy_score,
     confusion_matrix,
     ConfusionMatrixDisplay,
-    f1_score,
-    classification_report,
+    matthews_corrcoef,
+    
 )
 
 class Agent:
@@ -20,3 +20,11 @@ class Agent:
 
     def predict(self, X_test):
         return self.model.predict(X_test)
+    
+    def valuation(self, y_test, pred, labels=None):
+        accurancy = accuracy_score(y_test, pred)
+        precision = precision_score(y_test, pred)
+        recall = recall_score(y_test, pred)
+        cm = confusion_matrix(y_test, pred, labels=labels)
+        mcc = matthews_corrcoef(y_test, pred)
+        return accurancy, precision, recall, cm, mcc

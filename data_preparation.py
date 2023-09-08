@@ -2,7 +2,6 @@ import pandas as pd
 from sklearn.model_selection import train_test_split 
 
 
-
 def pull_DataFrame_csv(path) -> pd.DataFrame:
     ds = pd.read_csv(path)
     return ds
