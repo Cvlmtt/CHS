@@ -1,16 +1,6 @@
 import random
-import pandas as pd
-from sklearn.model_selection import train_test_split 
-from sklearn.naive_bayes import GaussianNB
-from sklearn.metrics import (
-    precision_score,
-    recall_score,
-    accuracy_score,
-    confusion_matrix,
-    ConfusionMatrixDisplay,
-    f1_score,
-    classification_report,
-)
+from sklearn.metrics import ConfusionMatrixDisplay
+
 import matplotlib.pyplot as plt
 from data_preparation import *
 from agent import *
@@ -49,12 +39,11 @@ print(separetor)
 ham_counter, spam_counter = coun_spam_ham(dipendent_variables_test_set)
 print(f"Test entrys -> Ham emails: {ham_counter}, Spam emails: {spam_counter}\n")
 
-#Traingin
+#Traingins
 agent = Agent()
 print(separetor)
 print("Agent training...\n")
 agent.fit(indipendent_variables_training_set, dipendent_variables_training_set)
-
 
 #Testing
 print(separetor)
@@ -73,4 +62,7 @@ print(f"Accurancy:{'%.2f'%(accurancy*100)}%\nPrecision:{'%.2f'%(precision*100)}%
 
 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=lables)
 disp.plot()
+
+cv_score = agent.cross_validation(X_train=indipendent_variables_training_set, y_train=dipendent_variables_training_set)
+print(cv_score)
 plt.show()
