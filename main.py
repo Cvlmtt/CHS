@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from data_preparation import *
 from agent import *
 
-path = "~/bin/SpamDataset2/emails.csv"
+path = "./dataset/emails.csv"
 columns = ['Email No.']
 separetor = "####################################\n"
 
