@@ -2,18 +2,18 @@ import pandas as pd
 from sklearn.model_selection import train_test_split 
 
 
-def pull_DataFrame_csv(path) -> pd.DataFrame:
+def pull_DataFrame_csv(path: str) -> pd.DataFrame:
     ds = pd.read_csv(path)
     return ds
 
-def data_cleaning(ds: pd.DataFrame, columns):
+def data_cleaning(ds: pd.DataFrame, columns) -> pd.DataFrame:
     ds = ds.drop(columns=columns)
     return ds
 
-def info(ds: pd.DataFrame):
+def info(ds: pd.DataFrame) -> pd.DataFrame:
     ds.info()
 
-def get_column(ds: pd.DataFrame, column: str):
+def get_column(ds: pd.DataFrame, column: str) -> pd.DataFrame:
     return ds[column]
 
 """ La funzione train_test_split prene in input due parametri (X, y) che rappresentano rispettivamente la lista delle features (quindi le variabili indipendenti, ovvero
